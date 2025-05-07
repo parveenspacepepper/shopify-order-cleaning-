@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Download Processed File</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+  <div class="bg-white shadow-lg rounded-lg p-10 text-center">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-6">🎉 File Ready!</h1>
+    <a href="{{ url_for('download_file', filename=filename) }}" 
+       class="inline-block px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition duration-200">
+      📥 Download Excel
+    </a>
+    <div class="mt-6">
+      <a href="{{ url_for('upload_file') }}" class="text-gray-500 hover:text-gray-800 transition duration-200">
+        🔄 Process Another File
+      </a>
+    </div>
+  </div>
+</body>
+</html>

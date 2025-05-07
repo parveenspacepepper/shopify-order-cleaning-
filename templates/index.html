@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tilting Heads Order Processor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function dropHandler(ev) {
+      ev.preventDefault();
+      const fileInput = document.getElementById('file-input');
+      fileInput.files = ev.dataTransfer.files;
+      document.getElementById('file-name').textContent = ev.dataTransfer.files[0].name;
+    }
+
+    function dragOverHandler(ev) {
+      ev.preventDefault();
+    }
+
+    function fileSelected() {
+      const fileInput = document.getElementById('file-input');
+      document.getElementById('file-name').textContent = fileInput.files[0].name;
+    }
+  </script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+  <div class="bg-white shadow-xl rounded-xl p-8 w-96">
+    <h1 class="text-xl font-semibold text-gray-700 text-center mb-6">
+      📦 <span class="text-blue-600">Tilting Heads</span> Order Processing
+    </h1>
+    <form method="post" enctype="multipart/form-data">
+      <div 
+        class="border-2 border-dashed border-gray-300 rounded-lg py-8 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition duration-200"
+        ondrop="dropHandler(event);" 
+        ondragover="dragOverHandler(event);"
+        onclick="document.getElementById('file-input').click();">
+        <input type="file" id="file-input" name="file" accept=".csv" hidden required onchange="fileSelected()">
+        <p class="text-gray-500">
+          📁 Drag & Drop your CSV file here<br>
+          <span class="text-blue-500 underline">or click to select from computer</span>
+        </p>
+        <p id="file-name" class="mt-3 text-sm text-green-600 font-semibold"></p>
+      </div>
+      <button type="submit"
+              class="mt-5 w-full py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-200">
+        🚀 Upload & Process
+      </button>
+    </form>
+  </div>
+</body>
+</html>
