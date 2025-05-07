@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, send_file
 import pandas as pd
 from datetime import datetime
 import os
-import time
 
 app = Flask(__name__)
 
@@ -12,18 +11,6 @@ OUTPUT_FOLDER = 'output'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-def cleanup_files(folder, keep_files=[]):
-    """
-    Removes all files in the specified folder except for those in keep_files list.
-    """
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        if filename not in keep_files and os.path.isfile(file_path):
-            try:
-                os.remove(file_path)
-            except Exception as e:
-                print(f"Error deleting {file_path}: {e}")
-
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -31,21 +18,26 @@ def upload_file():
         filepath = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(filepath)
 
-        # Read orders
+        # Read the orders file first
         orders_df = pd.read_csv(filepath)
 
-        # Load valid pincodes
+        # Load valid pincodes from pin.csv
         pin_path = os.path.join(UPLOAD_FOLDER, 'pin.csv')
         if not os.path.exists(pin_path):
             return "pin.csv not found. Please upload pin list as 'pin.csv' inside /uploads"
 
         pin_df = pd.read_csv(pin_path)
-        pin_df.columns = pin_df.columns.str.strip()
+        pin_df.columns = pin_df.columns.str.strip()  # Remove any trailing spaces in column names
         valid_pins = set(pin_df['PINCODE'].dropna().astype(str).str.strip())
 
+        # Add Delivery Availability Column
         orders_df['Cleaned Zip'] = orders_df['Shipping Zip'].astype(str).str.replace(r"[^\d]", "", regex=True).str.strip()
-        orders_df['Delivery Available'] = orders_df['Cleaned Zip'].apply(lambda x: 'yes' if x in valid_pins else 'no')
 
+        orders_df['Delivery Available'] = orders_df['Cleaned Zip'].apply(
+        lambda x: 'yes' if x in valid_pins else 'no'
+            )
+
+        # Continue with the rest of your logic...
         cleaned_df = pd.DataFrame({
             'SRNO': range(1, len(orders_df) + 1),
             'ORDER NO': orders_df['Name'],
@@ -72,10 +64,6 @@ def upload_file():
 
         output_file = os.path.join(OUTPUT_FOLDER, 'cleaned_orders.xlsx')
         cleaned_df.to_excel(output_file, index=False)
-
-        # Cleanup old files (but keep the current output and pin.csv)
-        cleanup_files(UPLOAD_FOLDER, keep_files=['pin.csv'])
-        cleanup_files(OUTPUT_FOLDER, keep_files=['cleaned_orders.xlsx'])
 
         return render_template('download.html', filename='cleaned_orders.xlsx')
 
